@@ -12,17 +12,13 @@ import (
 	"github.com/go-coldbrew/log"
 )
 
-var (
-	initialized bool
-)
-
-type Client struct {
+type unleashClient struct {
 }
 
 func Initialize(appName string, cfg config.UnleashConfig) (engines.FeatureFlag, error) {
 	if cfg.UnleashUrl == "" {
 		log.Info(context.Background(), "UNLEASH_URL is not configured, no feature flags in action")
-		return &Client{}, nil
+		return &unleashClient{}, nil
 	}
 
 	err := unleash.Initialize(
@@ -34,8 +30,7 @@ func Initialize(appName string, cfg config.UnleashConfig) (engines.FeatureFlag, 
 		log.Error(context.Background(), "Failed initializing Unleash client", err)
 		return nil, err
 	}
-	initialized = true
-	return &Client{}, nil
+	return &unleashClient{}, nil
 }
 
 func mapToUnleashContext(ctx engines.Context) unleashCtx.Context {
@@ -61,19 +56,11 @@ func mapFromUnleashVariant(variant *api.Variant) *engines.Variant {
 	}
 }
 
-func (c *Client) IsEnabled(name string, ctx engines.Context) bool {
-	if !initialized {
-		return false
-	}
-
+func (c *unleashClient) IsEnabled(name string, ctx engines.Context) bool {
 	return unleash.IsEnabled(name, unleash.WithContext(mapToUnleashContext(ctx)))
 }
 
-func (c *Client) GetVariant(name string, ctx engines.Context) *engines.Variant {
-	if !initialized {
-		return engines.DisabledVariant
-	}
-
+func (c *unleashClient) GetVariant(name string, ctx engines.Context) *engines.Variant {
 	variant := unleash.GetVariant(name, unleash.WithVariantContext(mapToUnleashContext(ctx)))
 	return mapFromUnleashVariant(variant)
 }
