@@ -18,7 +18,7 @@ type unleashClient struct {
 func Initialize(appName string, cfg config.UnleashConfig) (engines.FeatureFlag, error) {
 	if cfg.UnleashUrl == "" {
 		log.Info(context.Background(), "UNLEASH_URL is not configured, no feature flags in action")
-		return &unleashClient{}, nil
+		return nil, nil
 	}
 
 	err := unleash.Initialize(
