@@ -8,7 +8,7 @@ import (
 	"github.com/go-coldbrew/feature-flags/engines/unleash"
 )
 
-var client engines.FeatureFlag
+var Client engines.FeatureFlag
 
 const (
 	EngineUnleash = "unleash"
@@ -19,7 +19,7 @@ func Initialize(appName string, cfg config.Config) error {
 	var err error
 	switch cfg.FeatureFlagEngine {
 	case EngineUnleash:
-		client, err = unleash.Initialize(appName, cfg.UnleashConfig)
+		Client, err = unleash.Initialize(appName, cfg.UnleashConfig)
 		return err
 	default:
 		return fmt.Errorf("unsupported feature flag engine: %s", cfg.FeatureFlagEngine)
@@ -28,18 +28,18 @@ func Initialize(appName string, cfg config.Config) error {
 
 // IsEnabled check if a feature flag is enabled, returns false if client is not initialized
 func IsEnabled(name string, ctx engines.Context) bool {
-	if client == nil {
+	if Client == nil {
 		return false
 	}
 
-	return client.IsEnabled(name, ctx)
+	return Client.IsEnabled(name, ctx)
 }
 
 // GetVariant get variant for a feature flag, returns disabled variant if client is not initialised
 func GetVariant(name string, ctx engines.Context) *engines.Variant {
-	if client == nil {
+	if Client == nil {
 		return engines.DisabledVariant
 	}
 
-	return client.GetVariant(name, ctx)
+	return Client.GetVariant(name, ctx)
 }
